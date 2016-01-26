@@ -7,7 +7,6 @@ RANDOM_STRING=`cat /dev/urandom | env LC_CTYPE=C tr -cd 'a-f0-9' | head -c 4`
 
 echo $RANDOM_STRING > id;
 
-# you probably don't want to change these
 CONSUL_NAME=consul-$RANDOM_STRING
 MACHINE_NAME=ms-swarm-master-$RANDOM_STRING
 
@@ -55,4 +54,7 @@ do
   --engine-opt="cluster-advertise=eth0:2376" \
   app-server-$i-$RANDOM_STRING
 done
+
+log "Run the folowing to manage your swarm: eval \$(docker-machine env --swarm ms-swarm-master-$RANDOM_STRING)"
+log "Run docker-compose to start application"
 
