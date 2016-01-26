@@ -1,0 +1,21 @@
+interlock:
+  image: ehazlett/interlock
+  container_name: interlock
+  ports:
+    - "80:80"
+    - "8080:8080"
+    - "8443:8443"
+  volumes:
+    - /var/lib/boot2docker:/var/lib/boot2docker
+  command: >
+    --swarm-url ${DOCKER_HOST} --swarm-tls-ca-cert=/var/lib/boot2docker/ca.pem --swarm-tls-cert=/var/lib/boot2docker/server.pem --swarm-tls-key=/var/lib/boot2docker/server-key.pem --plugin haproxy start
+  environment:
+    - "constraint:node==ms-swarm-master*"
+gitlebook:
+  image: rodjers/gitlebook
+  ports:
+    - "80"
+  hostname: gitlebook.test2
+  environment:
+    - "affinity:container!=*interlock*"
+    - "constraint:node!=ms-swarm-master*"
