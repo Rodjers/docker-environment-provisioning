@@ -7,7 +7,7 @@ RANDOM_STRING=`cat /dev/urandom | env LC_CTYPE=C tr -cd 'a-f0-9' | head -c 4`
 
 echo $RANDOM_STRING > id;
 
-CONSUL_NAME=consul-$RANDOM_STRING
+CONSUL_NAME=ms-swarm-consul-$RANDOM_STRING
 MACHINE_NAME=ms-swarm-master-$RANDOM_STRING
 
 # create Consul
@@ -16,11 +16,7 @@ docker-machine create \
     -d virtualbox \
     $CONSUL_NAME
 
-
-log "Starting Consul"
-
 eval "$(docker-machine env $CONSUL_NAME)"
-CONSUL_IP=$(docker-machine ip $CONSUL_NAME)
 docker run -d --name $CONSUL_NAME -h $CONSUL_NAME \
 		-p 8600:53/udp \
 		-p 8400:8400 \
@@ -28,7 +24,6 @@ docker run -d --name $CONSUL_NAME -h $CONSUL_NAME \
 		progrium/consul \
 		-server \
 		-bootstrap
-log "Consul IP address: $CONSUL_IP"
 
 # create Swarm Master
 log "Creating Swarm master machine"
@@ -52,9 +47,8 @@ do
   --engine-label instance=appserver \
   --engine-opt="cluster-store=consul://$(docker-machine ip $CONSUL_NAME):8500" \
   --engine-opt="cluster-advertise=eth0:2376" \
-  app-server-$i-$RANDOM_STRING
+  ms-swarm-node-$i-$RANDOM_STRING
 done
 
-log "Run the folowing to manage your swarm: eval \$(docker-machine env --swarm ms-swarm-master-$RANDOM_STRING)"
-log "Run docker-compose to start application"
+docker-machine env --swarm ms-swarm-master-$RANDOM_STRING > env
 
